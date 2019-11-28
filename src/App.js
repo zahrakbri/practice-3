@@ -3,8 +3,11 @@ import Card from './card'
 import Container from '@material-ui/core/Container'
 import Grid from '@material-ui/core/Grid'
 import axios from 'axios'
+import { saveCards, computeRandomCard } from './actions/card'
+import { connect } from 'react-redux'
+import Fab from '@material-ui/core/Fab'
 
-function App() {
+function App (props) {
   const [fields, setFields] = useState({
     email: 'zahra',
     password: ''
@@ -20,14 +23,16 @@ function App() {
   // const [click, setClick] = useState(false)
 
   useEffect(() => {
+    document.title = `Hello ${fields.email}`
     axios.get('http://static.pushe.co/challenge/json')
       .then(function (response) {
-        console.log('rrrr', response.data);
+        props.dispatch(saveCards(response.data.cards))
       })
       .catch(function (error) {
         console.log(error);
       })
   }, [])
+
   return (
     <Container maxWidth='lg'>
       <Grid
@@ -38,8 +43,21 @@ function App() {
         <Card />
         <input onChange={(e) => setFields({email: e.target.value})} />
       </Grid>
+      <div style={{display: 'flex', justifyContent: 'flex-end'}}>
+        <Fab
+          color="secondary"
+          onClick={() => props.dispatch(computeRandomCard())}
+          aria-label="edit">
+          TRY
+        </Fab>
+      </div>
+      
     </Container>
   );
 }
 
-export default App;
+const mapDispatchToProps = (dispatch) => ({
+  dispatch: dispatch
+})
+
+export default connect(mapDispatchToProps)(App);
